@@ -1,0 +1,16 @@
+{
+    "name": "timecapsule",
+    "version": "0.0.0",
+    "private": false,
+    "description": "A program to help you responsibly disclose vulnerabilities.",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "minimist": "^1.2.5",
+        "tlock-js": "^0.6.1",
+        "web3.storage": "^3.1.0"
+    },
+    "author": "Yash Agarwal"
+}
