@@ -1,9 +1,10 @@
 import { Injectable, StreamableFile } from '@nestjs/common';
 import { roundAt, timelockDecrypt, timelockEncrypt } from 'tlock-js';
-import { Web3Storage } from 'web3.storage';
+import { File, Web3Storage } from 'web3.storage';
 import { TimeLockService } from '../timelock/timelock.service';
 import { MAINNET_CHAIN_INFO } from 'tlock-js/drand/defaults';
 import { Web3StorageFile } from '../timelock/dto';
+import { CreateCapsuleDto } from './dto';
 
 @Injectable()
 export class CapsuleService {
@@ -36,16 +37,11 @@ export class CapsuleService {
     return files;
   }
 
-  async putFile(): Promise<string> {
-    const fileName = 'encrypted123.txt';
-    const content = 'asdasbdfasa Yayyyy test test test 1213 end to end';
-    const date = new Date()
-    date.setMinutes(date.getMinutes() + 1);
-    const roundNumber = roundAt(date.getTime(), MAINNET_CHAIN_INFO);
-    const encryptedContent = await timelockEncrypt(roundNumber, Buffer.from(content), this.timeLockService.mainnet())
-    const blob: any = new Blob([encryptedContent])
-    blob.name = date.getTime() + '-' + fileName;
-    const cid = await this.storage.put([blob]);
-    return cid;
+  async putFile(dto: CreateCapsuleDto, file: Express.Multer.File): Promise<string> {
+    const roundNumber = roundAt(dto.revealTime.getTime(), MAINNET_CHAIN_INFO);
+    const encryptedContent = await timelockEncrypt(roundNumber, file.buffer, this.timeLockService.mainnet())
+    const fileName = dto.revealTime.getTime() + '-' + file.originalname;
+    const web3File = new File([Buffer.from(encryptedContent)], fileName, { type: file.mimetype });
+    return this.storage.put([web3File]);
   }
 }

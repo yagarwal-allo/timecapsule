@@ -1,7 +1,9 @@
-import { Controller, Get, Param, Post, StreamableFile } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CapsuleService } from './capsule.service';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Web3StorageFile } from '../timelock/dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateCapsuleDto } from './dto';
 
 @ApiTags('capsule')
 @Controller()
@@ -21,8 +23,10 @@ export class CapsuleController {
   }
 
   @Post()
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse()
-  putFile(): Promise<string> {
-    return this.appService.putFile();
+  putFile(@Body() dto: CreateCapsuleDto, @UploadedFile() file: Express.Multer.File): Promise<string> {
+    return this.appService.putFile(dto, file);
   }
 }
