@@ -1,8 +1,9 @@
 import { Body, Controller, Get, Param, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { CapsuleService } from './capsule.service';
 import { ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Web3StorageFile } from '../timelock/dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+import { CapsuleService } from './capsule.service';
+import { Web3StorageFile } from '../timelock';
 import { CreateCapsuleDto } from './dto';
 
 @ApiTags('capsule')

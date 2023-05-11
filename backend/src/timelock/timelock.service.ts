@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { HttpChainClient, HttpCachingChain } from 'tlock-js'
-import {MAINNET_CHAIN_URL} from "tlock-js/drand/defaults.js"
+import { HttpChainClient, HttpCachingChain, timelockEncrypt, roundAt, timelockDecrypt } from 'tlock-js'
+import {MAINNET_CHAIN_INFO, MAINNET_CHAIN_URL} from "tlock-js/drand/defaults"
 
 @Injectable()
 export class TimeLockService {
-  private readonly chainClient: HttpChainClient
+  private readonly chainClient: HttpChainClient;
+
   constructor() {
     const clientOpts = {
 			disableBeaconVerification: false,
@@ -17,7 +18,16 @@ export class TimeLockService {
     this.chainClient = new HttpChainClient(new HttpCachingChain(MAINNET_CHAIN_URL, clientOpts), clientOpts, {})
   }
 
- 	mainnet(): HttpChainClient {
+  async decryptTimeLockedText(value: string): Promise<Buffer> {
+    return timelockDecrypt(value, this._mainnet()).then((val) => Buffer.from(val));
+  }
+
+  async timeLockBuffer(revealTime: Date, buffer: Buffer): Promise<Buffer> {
+    const roundNumber = roundAt(revealTime.getTime(), MAINNET_CHAIN_INFO);
+    return timelockEncrypt(roundNumber, buffer, this._mainnet()).then((val) => Buffer.from(val));
+  }
+
+ 	private _mainnet(): HttpChainClient {
     return this.chainClient;
   }
 }
